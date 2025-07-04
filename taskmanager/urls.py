@@ -1,8 +1,16 @@
 from django.contrib import admin
 from django.urls import path, include
 
+# JWT views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),
-    path('', include('django.contrib.auth.urls')),
+    path('api/', include('core.api_urls')),
+    # JWT auth endpoints
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ] 
