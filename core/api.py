@@ -12,11 +12,17 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Task.objects.filter(user=self.request.user)
+
+        # Filter by status choice if provided
         status = self.request.query_params.get("status")
-        if status == "completed":
-            queryset = queryset.filter(completed=True)
-        elif status == "pending":
-            queryset = queryset.filter(completed=False)
+        if status in Task.Status.values:
+            queryset = queryset.filter(status=status)
+
+        # Optional filter by priority
+        priority = self.request.query_params.get("priority")
+        if priority in Task.Priority.values:
+            queryset = queryset.filter(priority=priority)
+
         return queryset
 
     def perform_create(self, serializer):

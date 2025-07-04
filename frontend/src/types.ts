@@ -2,6 +2,7 @@ export interface Task {
   id: number;
   title: string;
   description: string;
-  completed: boolean;
+  priority: 'low' | 'medium' | 'high';
+  status: 'pending' | 'in_progress' | 'completed';
   created_at: string;
 } 

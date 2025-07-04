@@ -7,10 +7,11 @@ const TaskForm: React.FC = () => {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<Pick<Task, 'title' | 'description' | 'completed'>>({
+  const [formData, setFormData] = useState<Pick<Task, 'title' | 'description' | 'priority' | 'status'>>({
     title: '',
     description: '',
-    completed: false,
+    priority: 'medium',
+    status: 'pending',
   });
 
   useEffect(() => {
@@ -20,13 +21,14 @@ const TaskForm: React.FC = () => {
         setFormData({
           title: data.title,
           description: data.description,
-          completed: data.completed,
+          priority: data.priority,
+          status: data.status,
         });
       })();
     }
   }, [id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
@@ -67,19 +69,33 @@ const TaskForm: React.FC = () => {
             onChange={handleChange}
           />
         </div>
+        <div className="mb-3">
+          <label className="form-label">Priority</label>
+          <select
+            name="priority"
+            className="form-select"
+            value={formData.priority}
+            onChange={handleChange}
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
         {isEdit && (
-          <div className="form-check mb-3">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="completed"
-              name="completed"
-              checked={formData.completed}
+          <div className="mb-3">
+            <label className="form-label">Status</label>
+            <select
+              name="status"
+              className="form-select"
+              value={formData.status}
               onChange={handleChange}
-            />
-            <label htmlFor="completed" className="form-check-label">
-              Completed
-            </label>
+            >
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
           </div>
         )}
         <button className="btn btn-primary" type="submit">
