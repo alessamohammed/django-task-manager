@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api';
 import { Task } from '../types';
+import { toast } from 'react-toastify';
 
 const TaskForm: React.FC = () => {
   const { id } = useParams();
@@ -38,12 +39,18 @@ const TaskForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEdit) {
-      await api.put(`tasks/${id}/`, formData);
-    } else {
-      await api.post('tasks/', formData);
+    try {
+      if (isEdit) {
+        await api.put(`tasks/${id}/`, formData);
+        toast.success('Task updated');
+      } else {
+        await api.post('tasks/', formData);
+        toast.success('Task created');
+      }
+      navigate('/');
+    } catch (err) {
+      toast.error('Error saving task');
     }
-    navigate('/');
   };
 
   return (

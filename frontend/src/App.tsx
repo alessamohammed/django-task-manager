@@ -5,6 +5,8 @@ import TaskList from './pages/TaskList';
 import TaskForm from './pages/TaskForm';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
   const { user } = useAuth();
@@ -21,9 +23,12 @@ const Navbar: React.FC = () => {
         </Link>
         <div>
           {user ? (
-            <button className="btn btn-outline-danger" onClick={logout}>
-              Logout
-            </button>
+            <>
+              <span className="me-3">Hello, {user.username ?? 'User'}</span>
+              <button className="btn btn-outline-danger" onClick={logout}>
+                Logout
+              </button>
+            </>
           ) : (
             <Link className="btn btn-outline-primary" to="/login">
               Login
@@ -67,6 +72,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+      <ToastContainer position="top-right" autoClose={3000} />
     </AuthProvider>
   );
 };

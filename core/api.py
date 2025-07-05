@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions, generics
+from django.db import models
 
 from .models import Task
 from .serializers import TaskSerializer, UserRegisterSerializer
@@ -22,6 +23,13 @@ class TaskViewSet(viewsets.ModelViewSet):
         priority = self.request.query_params.get("priority")
         if priority in Task.Priority.values:
             queryset = queryset.filter(priority=priority)
+
+        # Text search by title or description (?q=)
+        query = self.request.query_params.get("q")
+        if query:
+            queryset = queryset.filter(
+                models.Q(title__icontains=query) | models.Q(description__icontains=query)
+            )
 
         return queryset
 

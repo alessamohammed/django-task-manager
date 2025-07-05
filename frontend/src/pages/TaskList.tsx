@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import { Task } from '../types';
+import { toast } from 'react-toastify';
 
 const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all');
 
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
+  const [search, setSearch] = useState('');
 
   const fetchTasks = async () => {
     const params: Record<string, string> = {};
@@ -17,29 +19,56 @@ const TaskList: React.FC = () => {
     if (priorityFilter !== 'all') {
       params.priority = priorityFilter;
     }
+    if (search.trim()) {
+      params.q = search.trim();
+    }
     const { data } = await api.get<Task[]>('tasks/', { params });
     setTasks(data);
   };
 
   useEffect(() => {
     fetchTasks();
-  }, [filter, priorityFilter]);
+  }, [filter, priorityFilter, search]);
 
   const toggleStatus = async (task: Task) => {
     const newStatus = task.status === 'completed' ? 'pending' : 'completed';
-    await api.patch(`tasks/${task.id}/`, { status: newStatus });
-    fetchTasks();
+    try {
+      await api.patch(`tasks/${task.id}/`, { status: newStatus });
+      toast.success('Task updated');
+      fetchTasks();
+    } catch {
+      toast.error('Error updating task');
+    }
   };
 
   const deleteTask = async (id: number) => {
-    await api.delete(`tasks/${id}/`);
-    fetchTasks();
+    try {
+      await api.delete(`tasks/${id}/`);
+      toast.success('Task deleted');
+      fetchTasks();
+    } catch {
+      toast.error('Error deleting task');
+    }
   };
 
   return (
     <div className="container py-4">
       <h1>Tasks</h1>
       <div className="mb-3">
+        {/* Search box */}
+        <div className="input-group mb-2" style={{ maxWidth: 300 }}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button className="btn btn-outline-secondary" onClick={fetchTasks}>
+            Go
+          </button>
+        </div>
+
         {/* Status filter */}
         <div className="btn-group me-3" role="group">
           {(['all', 'pending', 'in_progress', 'completed'] as const).map((s) => (
